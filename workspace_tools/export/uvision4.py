@@ -46,6 +46,7 @@ class Uvision4(Exporter):
         'LPC11U35_501',
         'NRF51822',
         'ARCH_PRO',
+        'EFM32G210F128',
     ]
 
     USING_MICROLIB = [
@@ -63,6 +64,7 @@ class Uvision4(Exporter):
         'LPC1549',
         'LPC11U35_501',
         'KL05Z',
+		'EFM32G210F128',
     ]
 
     FILE_TYPES = {

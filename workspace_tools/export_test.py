@@ -85,6 +85,7 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_F401RE'),
             ('uvision', 'NUCLEO_L053R8'),
             ('uvision', 'NUCLEO_L152RE'),
+            ('uvision', 'EFM32G210F128'),
 
             ('lpcxpresso', 'LPC1768'), ('lpcxpresso', 'LPC4088'),('lpcxpresso', 'LPC1114'),
             ('lpcxpresso', 'LPC11U35_401'),

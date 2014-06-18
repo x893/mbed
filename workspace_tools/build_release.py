@@ -56,6 +56,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NRF51822', ('ARM', )),
 
     ('LPC11U68', ('uARM','GCC_ARM','GCC_CR')),
+
+    ('EFM32G210F128', ('ARM', 'uARM')),
 )
 
 

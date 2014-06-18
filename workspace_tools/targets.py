@@ -349,6 +349,22 @@ class NUCLEO_F103RB(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
 
 
+class EFM32G210F128(Target):
+    ONLINE_TOOLCHAIN = "uARM"
+    OUTPUT_NAMING = "8.3"
+
+    def __init__(self):
+        Target.__init__(self)
+
+        self.core = "Cortex-M3"
+
+        self.extra_labels = ['EFM32', 'EFM32G', 'EFM32G210F128']
+
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+
+        self.supported_form_factors = ["CUSTOM"]
+
+
 class NUCLEO_F302R8(Target):
     ONLINE_TOOLCHAIN = "uARM"
     OUTPUT_NAMING = "8.3"
@@ -696,6 +712,7 @@ TARGETS = [
     XADOW_M0(),
     ARCH_BLE(),
     ARCH_PRO(),
+	EFM32G210F128(),
 ]
 
 # Map each target name to its unique instance
