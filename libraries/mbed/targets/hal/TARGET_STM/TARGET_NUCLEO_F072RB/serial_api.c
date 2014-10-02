@@ -27,13 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#include "mbed_assert.h"
 #include "serial_api.h"
 
 #if DEVICE_SERIAL
 
 #include "cmsis.h"
 #include "pinmap.h"
-#include "error.h"
 #include <string.h>
 
 static const PinMap PinMap_UART_TX[] = {
@@ -90,6 +90,10 @@ static void init_uart(serial_t *obj) {
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 
+    // Disable the reception overrun detection
+    UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
+    UartHandle.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
+    
     HAL_UART_Init(&UartHandle);
 }
 
@@ -100,10 +104,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
     obj->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-
-    if (obj->uart == (UARTName)NC) {
-        error("Serial error: pinout mapping failed.");
-    }
+    MBED_ASSERT(obj->uart != (UARTName)NC);
 
     // Enable USART clock
     if (obj->uart == UART_1) {
@@ -184,10 +185,10 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-    if (data_bits == 8) {
-        obj->databits = UART_WORDLENGTH_8B;
-    } else {
+    if (data_bits == 9) {
         obj->databits = UART_WORDLENGTH_9B;
+    } else {
+        obj->databits = UART_WORDLENGTH_8B;
     }
 
     switch (parity) {
@@ -226,7 +227,7 @@ static void uart_irq(UARTName name, int id) {
         }
         if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_RXNE) != RESET) {
             irq_handler(serial_irq_ids[id], RxIrq);
-            __HAL_UART_CLEAR_IT(&UartHandle, UART_FLAG_RXNE);
+            volatile uint32_t tmpval = UartHandle.Instance->RDR; // Clear RXNE bit
         }
     }
 }
@@ -296,9 +297,9 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         if (irq == RxIrq) {
             __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_RXNE);
             // Check if TxIrq is disabled too
-            if ((UartHandle.Instance->CR1 & USART_CR1_TXEIE) == 0) all_disabled = 1;
+            if ((UartHandle.Instance->CR1 & USART_CR1_TCIE) == 0) all_disabled = 1;
         } else { // TxIrq
-            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TXE);
+            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TC);
             // Check if RxIrq is disabled too
             if ((UartHandle.Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
         }
@@ -342,8 +343,8 @@ int serial_writable(serial_t *obj) {
 
 void serial_clear(serial_t *obj) {
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
-    __HAL_UART_CLEAR_IT(&UartHandle, UART_FLAG_TXE);
-    __HAL_UART_CLEAR_IT(&UartHandle, UART_FLAG_RXNE);
+    __HAL_UART_CLEAR_IT(&UartHandle, UART_FLAG_TC);
+    __HAL_UART_SEND_REQ(&UartHandle, UART_RXDATA_FLUSH_REQUEST);
 }
 
 void serial_pinout_tx(PinName tx) {

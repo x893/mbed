@@ -15,19 +15,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import Test, DefaultTest
+from host_test import DefaultTest
 from sys import stdout
+import re
 
 class HelloTest(DefaultTest):
-    HELLO_WORLD = "Hello World\n"
-
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
+    HELLO_WORLD = "Hello World"
 
     def run(self):
-        c = self.mbed.serial.read(len(self.HELLO_WORLD))
-        stdout.write(c)
-        if c == self.HELLO_WORLD: # Hello World received
+        c = self.mbed.serial_readline()
+        if c is None:
+           self.print_result("ioerr_serial")
+           return
+        print c.strip()
+        stdout.flush()
+
+        c = self.mbed.serial_readline()
+        if c is None:
+           self.print_result("ioerr_serial")
+           return
+        print "Read %d bytes"% len(c)
+        print c.strip()
+        stdout.flush()
+        result = True
+        # Because we can have targetID here let's try to decode
+        if len(c) < len(self.HELLO_WORLD):
+            result = False
+        else:
+            result = self.HELLO_WORLD in c
+
+        if result: # Hello World received
             self.print_result('success')
         else:
             self.print_result('failure')

@@ -27,22 +27,30 @@ I2C i2c(PTC9, PTC8);
 #elif defined(TARGET_KL46Z)
 I2C i2c(PTC9, PTC8);
 
+#elif defined(TARGET_K64F)
+I2C i2c(PTE25, PTE24);
+
+#elif defined(TARGET_K20D50M)
+I2C i2c(PTB3, PTB2);
+
 #elif defined(TARGET_LPC812)
 I2C i2c(P0_10, P0_11);
 
 #elif defined(TARGET_LPC1549)
 I2C i2c(P0_23, P0_22);
 
-#elif defined(TARGET_NUCLEO_F103RB) || \
-    defined(TARGET_NUCLEO_L152RE) || \
-    defined(TARGET_NUCLEO_F302R8) || \
-    defined(TARGET_NUCLEO_F030R8) || \
-    defined(TARGET_NUCLEO_F401RE) || \
-    defined(TARGET_NUCLEO_L053R8)
+#elif defined(TARGET_NUCLEO_F030R8) || \
+      defined(TARGET_NUCLEO_F072RB) || \
+      defined(TARGET_NUCLEO_F091RC) || \
+      defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_NUCLEO_F302R8) || \
+      defined(TARGET_NUCLEO_F303RE) || \
+      defined(TARGET_NUCLEO_F334R8) || \
+      defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_L053R8) || \
+      defined(TARGET_NUCLEO_L152RE)
 I2C i2c(I2C_SDA, I2C_SCL);
-
-#elif defined(TARGET_K64F)
-I2C i2c(PTE25, PTE24);
 
 #elif defined(TARGET_LPC11U68)
 I2C i2c(SDA, SCL);

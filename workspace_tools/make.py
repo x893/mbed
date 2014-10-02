@@ -19,10 +19,9 @@ limitations under the License.
 TEST BUILD & RUN
 """
 import sys
-from os.path import join, abspath, dirname
-from subprocess import call
-from shutil import copy
 from time import sleep
+from shutil import copy
+from os.path import join, abspath, dirname
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -47,6 +46,8 @@ if __name__ == '__main__':
                       help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
     parser.add_option("-n", dest="program_name",
                       help="The name of the desired test program")
+    parser.add_option("-j", "--jobs", type="int", dest="jobs",
+                      default=1, help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
     parser.add_option("-D", "", action="append", dest="macros",
@@ -166,7 +167,7 @@ if __name__ == '__main__':
                             test.dependencies, options.options,
                             linker_script=options.linker_script,
                             clean=options.clean, verbose=options.verbose,
-                            macros=options.macros)
+                            macros=options.macros, jobs=options.jobs)
         print 'Image: %s' % bin
 
         if options.disk:
@@ -186,7 +187,15 @@ if __name__ == '__main__':
             serial.flushInput()
             serial.flushOutput()
 
-            serial.sendBreak()
+            try:
+                serial.sendBreak()
+            except:
+                # In linux a termios.error is raised in sendBreak and in setBreak.
+                # The following setBreak() is needed to release the reset signal on the target mcu.
+                try:
+                    serial.setBreak(False)
+                except:
+                    pass
 
             while True:
                 c = serial.read(512)

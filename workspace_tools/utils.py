@@ -49,9 +49,8 @@ def mkdir(path):
 
 
 def copy_file(src, dst):
-    """
-    Implement the behaviour of "shutil.copy(src, dst)" without copying the
-    permissions (this was causing errors with directories mounted with samba)
+    """ Implement the behaviour of "shutil.copy(src, dst)" without copying the
+        permissions (this was causing errors with directories mounted with samba)
     """
     if isdir(dst):
         _, file = split(src)
@@ -95,3 +94,8 @@ def args_error(parser, message):
     print "\n\n%s\n\n" % message
     parser.print_help()
     sys.exit()
+
+
+def construct_enum(**enums):
+    """ Create your own pseudo-enums """
+    return type('Enum', (), enums)

@@ -15,38 +15,53 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_test import Test, DefaultTest
+from host_test import DefaultTest
 from time import time
 from sys import stdout
 
 class WaitusTest(DefaultTest):
-    def print_result(self, result):
-       print "\n{%s}\n{end}" % result
-
     def run(self):
         test_result = True
         # First character to start test (to know after reset when test starts)
-        self.mbed.serial.timeout = None
-        c = self.mbed.serial.read(1)
-        if c == '$':    # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
+        if self.mbed.serial_timeout(None) is None:
+            self.print_result("ioerr_serial")
+            return
+        c = self.mbed.serial_read(1)
+        if c is None:
+            self.print_result("ioerr_serial")
+            return
+        if c == '$': # target will printout TargetID e.g.: $$$$1040e649d5c09a09a3f6bc568adef61375c6
             #Read additional 39 bytes of TargetID
-            self.mbed.serial.read(39)
-            c = self.mbed.serial.read(1) # Re-read first 'tick'
-
+            if self.mbed.serial_read(39) is None:
+                self.print_result("ioerr_serial")
+                return
+            c = self.mbed.serial_read(1) # Re-read first 'tick'
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
         print "Test started"
-        start_serial_pool = start = time();
+        start_serial_pool = time()
+        start = time()
         for i in range(0, 10):
-            c = self.mbed.serial.read(1)
+            c = self.mbed.serial_read(1)
+            if c is None:
+                self.print_result("ioerr_serial")
+                return
             if i > 2: # we will ignore first few measurements
                 delta = time() - start
                 deviation = abs(delta - 1)
-                deviation_ok = True if delta > 0 and deviation <= 0.05 else False # +/-5%
+                # Round values
+                delta = round(delta, 2)
+                deviation = round(deviation, 2)
+                # Check if time measurements are in given range
+                deviation_ok = True if delta > 0 and deviation <= 0.10 else False # +/-10%
                 test_result = test_result and deviation_ok
                 msg = "OK" if deviation_ok else "FAIL"
                 print ". in %.2f sec (%.2f) [%s]" % (delta, deviation, msg)
             else:
                 print ". skipped"
-            start = time();
+            stdout.flush()
+            start = time()
         measurement_time = time() - start_serial_pool
         print "Completed in %.2f sec" % (measurement_time)
 
@@ -54,7 +69,6 @@ class WaitusTest(DefaultTest):
             self.print_result('success')
         else:
             self.print_result('failure')
-        stdout.flush()
 
 if __name__ == '__main__':
     WaitusTest().run()

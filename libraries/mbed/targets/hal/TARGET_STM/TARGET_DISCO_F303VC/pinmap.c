@@ -28,9 +28,9 @@
  *******************************************************************************
  */
 #include "mbed_assert.h"
-#include "device.h"
 #include "pinmap.h"
-#include "error.h"
+#include "PortNames.h"
+#include "mbed_error.h"
 
 // Enable GPIO clock and return GPIO base address
 uint32_t Set_GPIO_Clock(uint32_t port_idx) {

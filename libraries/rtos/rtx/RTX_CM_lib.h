@@ -31,7 +31,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
-#include "error.h"
+#include "mbed_error.h"
 
 #if   defined (__CC_ARM)
 #pragma O3
@@ -205,7 +205,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_LPC11U24)
 #define INITIAL_SP            (0x10002000UL)
 
-#elif defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501)
+#elif defined(TARGET_LPC11U35_401) || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO)
 #define INITIAL_SP            (0x10002000UL)
 
 #elif defined(TARGET_LPC1114)
@@ -229,6 +229,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_LPC4088)
 #define INITIAL_SP            (0x10010000UL)
 
+#elif defined(TARGET_LPC4337)
+#define INITIAL_SP            (0x10008000UL)
+
 #elif defined(TARGET_LPC1347)
 #define INITIAL_SP            (0x10002000UL)
 
@@ -241,6 +244,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_STM32F407) || defined(TARGET_F407VG)
 #define INITIAL_SP            (0x20020000UL)
 
+#elif defined(TARGET_STM32F401RE)
+#define INITIAL_SP            (0x20018000UL)
+
 #elif defined(TARGET_LPC1549)
 #define INITIAL_SP            (0x02009000UL)
 
@@ -249,6 +255,12 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 
 #elif defined(TARGET_NRF51822)
 #define INITIAL_SP            (0x20004000UL)
+
+#elif defined(TARGET_STM32F411RE)
+#define INITIAL_SP            (0x20020000UL)
+
+#elif defined(TARGET_STM32F103RB)
+#define INITIAL_SP            (0x20005000UL)
 
 #else
 #error "no target defined"

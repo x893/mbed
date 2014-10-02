@@ -44,7 +44,7 @@ class ARM(mbedToolchain):
         common = ["-c",
             "--cpu=%s" % cpu, "--gnu",
             "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict"
+            "--brief_diagnostics", "--restrict", "--multibyte_chars"
         ]
 
         if "save-asm" in self.options:
@@ -83,8 +83,10 @@ class ARM(mbedToolchain):
     def assemble(self, source, object, includes):
         # Preprocess first, then assemble
         tempfile = object + '.E.s'
-        self.default_cmd(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source])
-        self.default_cmd(self.hook.get_cmdline_assembler(self.asm + ["-o", object, tempfile]))
+        return [
+            self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source],
+            self.hook.get_cmdline_assembler(self.asm + ["-o", object, tempfile])
+        ]
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -114,7 +116,10 @@ class ARM(mbedToolchain):
                     match.group('line'),
                     match.group('message')
                 )
-
+                
+    def get_dep_opt(self, dep_path):
+        return ["--depend", dep_path]
+        
     def archive(self, objects, lib_path):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
 

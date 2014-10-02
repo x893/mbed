@@ -67,14 +67,12 @@ static void tim_oc_irq_handler(void) {
     if (oc_rem_part > 0) {
         set_compare(oc_rem_part); // Finish the remaining time left
         oc_rem_part = 0;
-    }
-    else {
+    } else {
         if (oc_int_part > 0) {
             set_compare(0xFFFF);
             oc_rem_part = cval; // To finish the counter loop the next time
             oc_int_part--;
-        }
-        else {
+        } else {
             us_ticker_irq_handler();
         }
     }
@@ -92,7 +90,7 @@ void us_ticker_init(void) {
     // Configure time base
     TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
     TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
-    TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 µs tick
+    TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(SystemCoreClock / 1000000) - 1; // 1 ï¿½s tick
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit(TIM_MST, &TIM_TimeBaseStructure);
@@ -133,14 +131,13 @@ uint32_t us_ticker_read() {
     return counter2;
 }
 
-void us_ticker_set_interrupt(unsigned int timestamp) {
-    int delta = (int)(timestamp - us_ticker_read());
+void us_ticker_set_interrupt(timestamp_t timestamp) {
+    int delta = (int)((uint32_t)timestamp - us_ticker_read());
     uint16_t cval = TIM_MST->CNT;
 
     if (delta <= 0) { // This event was in the past
         us_ticker_irq_handler();
-    }
-    else {
+    } else {
         oc_int_part = (uint32_t)(delta >> 16);
         oc_rem_part = (uint16_t)(delta & 0xFFFF);
         if (oc_rem_part <= (0xFFFF - cval)) {
